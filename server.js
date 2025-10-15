@@ -98,7 +98,7 @@ app.get("/callback", async (req, res) => {
     req.session.accessToken = tokenData.access_token;
     req.session.refreshToken = tokenData.refresh_token;
 
-    res.redirect("/test-connection.html");
+    res.redirect("/");
   } catch (error) {
     console.error("OAuth callback error:", error);
     res.redirect(

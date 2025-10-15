@@ -68,3 +68,7 @@ const response = await fetch(`https://${ECAIR_CLERK_DOMAIN}/oauth/token`, {
   }),
 });
 ```
+
+## url details
+
+https://clerk.ecair.eco/.well-known/oauth-authorization-server
