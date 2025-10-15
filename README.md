@@ -2,8 +2,12 @@
 
 A demonstration application showing how partners can integrate with the Ecair API using OAuth 2.0 authentication via Clerk.
 
+Built with TypeScript, Express, and pnpm.
+
 ## 📋 Prerequisites
 
+- Node.js >= 18.0.0
+- pnpm >= 9.0.0
 - A user account on https://app.ecair.eco
 - Access to the Ecair Partner API
 
@@ -12,7 +16,7 @@ A demonstration application showing how partners can integrate with the Ecair AP
 ### 1. Install Dependencies
 
 ```bash
-npm install
+pnpm install
 ```
 
 ### 2. Configure Environment Variables
@@ -27,8 +31,10 @@ Edit `.env` with your values
 
 ### 3. Run the Application
 
+**Development mode** (with hot reload):
+
 ```bash
-npm run dev
+pnpm dev
 ```
 
 The application will be available at **http://localhost:3000**
@@ -56,7 +62,7 @@ This demo uses the `access_token` for API calls. In production, you should:
 
 Example refresh token request:
 
-```javascript
+```typescript
 const response = await fetch(`https://${ECAIR_CLERK_DOMAIN}/oauth/token`, {
   method: "POST",
   headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -67,8 +73,8 @@ const response = await fetch(`https://${ECAIR_CLERK_DOMAIN}/oauth/token`, {
     client_secret: CLIENT_SECRET,
   }),
 });
-```
 
 ## url details
 
 https://clerk.ecair.eco/.well-known/oauth-authorization-server
+```

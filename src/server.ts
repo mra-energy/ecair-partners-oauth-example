@@ -1,11 +1,33 @@
 import { config } from "dotenv";
-import express from "express";
+import express, { Request, Response } from "express";
 import session from "express-session";
+import { z } from "zod";
 
 config();
 
+const OAuthTokenResponseSchema = z.object({
+  access_token: z.string(),
+  refresh_token: z.string(),
+  token_type: z.string().optional(),
+  expires_in: z.number().optional(),
+});
+
+const OAuthCallbackQuerySchema = z.object({
+  code: z.string().optional(),
+  error: z.string().optional(),
+  state: z.string().optional(),
+});
+
 const app = express();
 const PORT = 3000;
+
+declare module "express-session" {
+  interface SessionData {
+    accessToken?: string;
+    refreshToken?: string;
+    oauthState?: string;
+  }
+}
 
 app.use(
   session({
@@ -18,7 +40,6 @@ app.use(
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
 app.use(express.static("public"));
 
 function getClerkOAuthUrls() {
@@ -31,23 +52,22 @@ function getClerkOAuthUrls() {
   };
 }
 
-function generateRandomState() {
+function generateRandomState(): string {
   return Math.random().toString(36).substring(2, 15);
 }
 
-app.get("/api/auth-status", (req, res) => {
+app.get("/api/auth-status", (req: Request, res: Response) => {
   res.json({ isAuthenticated: !!req.session.accessToken });
 });
 
-app.get("/login", (req, res) => {
+app.get("/login", (req: Request, res: Response) => {
   const { authorize } = getClerkOAuthUrls();
-
   const state = generateRandomState();
   req.session.oauthState = state;
 
   const redirectUri = `${process.env.APP_BASE_URL}/callback`;
   const params = new URLSearchParams({
-    client_id: process.env.CLERK_OAUTH_CLIENT_ID,
+    client_id: process.env.CLERK_OAUTH_CLIENT_ID!,
     redirect_uri: redirectUri,
     response_type: "code",
     scope: "profile email",
@@ -58,8 +78,14 @@ app.get("/login", (req, res) => {
   res.redirect(fullUrl);
 });
 
-app.get("/callback", async (req, res) => {
-  const { code, error, state } = req.query;
+app.get("/callback", async (req: Request, res: Response) => {
+  const queryResult = OAuthCallbackQuerySchema.safeParse(req.query);
+
+  if (!queryResult.success) {
+    return res.redirect("/callback.html?type=missing_code");
+  }
+
+  const { code, error, state } = queryResult.data;
 
   if (error) {
     return res.redirect(
@@ -80,8 +106,8 @@ app.get("/callback", async (req, res) => {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: new URLSearchParams({
-        client_id: process.env.CLERK_OAUTH_CLIENT_ID,
-        client_secret: process.env.CLERK_OAUTH_CLIENT_SECRET,
+        client_id: process.env.CLERK_OAUTH_CLIENT_ID!,
+        client_secret: process.env.CLERK_OAUTH_CLIENT_SECRET!,
         code: code,
         grant_type: "authorization_code",
         redirect_uri: `${process.env.APP_BASE_URL}/callback`,
@@ -93,7 +119,8 @@ app.get("/callback", async (req, res) => {
       throw new Error(`Token exchange failed: ${errorText}`);
     }
 
-    const tokenData = await tokenResponse.json();
+    const rawTokenData = await tokenResponse.json();
+    const tokenData = OAuthTokenResponseSchema.parse(rawTokenData);
 
     req.session.accessToken = tokenData.access_token;
     req.session.refreshToken = tokenData.refresh_token;
@@ -101,15 +128,17 @@ app.get("/callback", async (req, res) => {
     res.redirect("/");
   } catch (error) {
     console.error("OAuth callback error:", error);
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
     res.redirect(
       `/callback.html?type=token_failed&details=${encodeURIComponent(
-        error.message
+        errorMessage
       )}`
     );
   }
 });
 
-app.get("/api/test-connection", async (req, res) => {
+app.get("/api/test-connection", async (req: Request, res: Response) => {
   if (!req.session.accessToken) {
     return res.status(401).json({ error: "Not authenticated" });
   }
@@ -132,11 +161,13 @@ app.get("/api/test-connection", async (req, res) => {
     res.json(testData);
   } catch (error) {
     console.error("Connection test error:", error);
-    res.status(500).json({ error: error.message });
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
+    res.status(500).json({ error: errorMessage });
   }
 });
 
-app.get("/logout", (req, res) => {
+app.get("/logout", (req: Request, res: Response) => {
   req.session.destroy((err) => {
     if (err) {
       console.error("Session destruction error:", err);
@@ -146,6 +177,11 @@ app.get("/logout", (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`\nEcair Partner OAuth Example`);
-  console.log(`\nVisit http://localhost:${PORT} to get started\n`);
+  console.log(`\n🚀 Ecair Partner OAuth Example`);
+  console.log(`📍 Server running at http://localhost:${PORT}`);
+  console.log(`\n⚙️  Setup checklist:`);
+  console.log(`   1. Copy .env.example to .env and configure your credentials`);
+  console.log(`   2. Create an OAuth application in your Clerk Dashboard`);
+  console.log(`   3. Add http://localhost:${PORT}/callback as a redirect URI`);
+  console.log(`\n📖 Visit http://localhost:${PORT} to get started\n`);
 });
