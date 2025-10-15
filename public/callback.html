@@ -1,66 +1,72 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>OAuth Callback</title>
-  <link rel="stylesheet" href="/styles.css">
-</head>
-<body>
-  <div class="card">
-    <h1 id="title">🔄 Processing Authentication...</h1>
-    <p id="description">Please wait while we complete your authentication.</p>
-    <div id="error-container" style="display: none;" class="error-details"></div>
-    <div id="actions" style="display: none; margin-top: 20px;">
-      <a href="/" class="btn">Return Home</a>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OAuth Callback</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="card">
+      <h1 id="title">🔄 Processing Authentication...</h1>
+      <p id="description">Please wait while we complete your authentication.</p>
+      <div
+        id="error-container"
+        style="display: none"
+        class="error-details"
+      ></div>
+      <div id="actions" style="display: none; margin-top: 20px">
+        <a href="/" class="btn">Return Home</a>
+      </div>
     </div>
-  </div>
 
-  <script>
-    const params = new URLSearchParams(window.location.search);
-    const error = params.get('error');
-    const errorType = params.get('type');
-    const errorDetails = params.get('details');
+    <script>
+      const params = new URLSearchParams(window.location.search);
+      const error = params.get("error");
+      const errorType = params.get("type");
+      const errorDetails = params.get("details");
 
-    if (error || errorType) {
-      // Display error in page
-      const title = document.getElementById('title');
-      const description = document.getElementById('description');
-      const errorContainer = document.getElementById('error-container');
-      const actions = document.getElementById('actions');
+      if (error || errorType) {
+        const title = document.getElementById("title");
+        const description = document.getElementById("description");
+        const errorContainer = document.getElementById("error-container");
+        const actions = document.getElementById("actions");
 
-      const errorMessages = {
-        auth: {
-          title: '⚠️ Authentication Error',
-          description: 'The authentication process could not be completed.'
-        },
-        csrf: {
-          title: '🔒 Security Error',
-          description: 'Invalid state parameter detected. This may indicate a CSRF attack or an expired session. Please try logging in again.'
-        },
-        missing_code: {
-          title: '⚠️ Missing Authorization Code',
-          description: 'The authorization callback is missing the required code parameter. Please try logging in again.'
-        },
-        token_failed: {
-          title: '❌ Authentication Failed',
-          description: 'An error occurred during the authentication process. Please check your configuration and try again.'
+        const errorMessages = {
+          auth: {
+            title: "⚠️ Authentication Error",
+            description: "The authentication process could not be completed.",
+          },
+          csrf: {
+            title: "🔒 Security Error",
+            description:
+              "Invalid state parameter detected. This may indicate a CSRF attack or an expired session. Please try logging in again.",
+          },
+          missing_code: {
+            title: "⚠️ Missing Authorization Code",
+            description:
+              "The authorization callback is missing the required code parameter. Please try logging in again.",
+          },
+          token_failed: {
+            title: "❌ Authentication Failed",
+            description:
+              "An error occurred during the authentication process. Please check your configuration and try again.",
+          },
+        };
+
+        const errorInfo = errorMessages[errorType] || errorMessages.auth;
+
+        title.textContent = errorInfo.title;
+        title.style.color = "#d32f2f";
+        description.textContent = errorInfo.description;
+
+        if (errorDetails || error) {
+          errorContainer.textContent = errorDetails || error;
+          errorContainer.style.display = "block";
         }
-      };
 
-      const errorInfo = errorMessages[errorType] || errorMessages.auth;
-
-      title.textContent = errorInfo.title;
-      title.style.color = '#d32f2f';
-      description.textContent = errorInfo.description;
-
-      if (errorDetails || error) {
-        errorContainer.textContent = errorDetails || error;
-        errorContainer.style.display = 'block';
+        actions.style.display = "block";
       }
-
-      actions.style.display = 'block';
-    }
-  </script>
-</body>
+    </script>
+  </body>
 </html>
