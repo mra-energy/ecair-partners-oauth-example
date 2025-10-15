@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Partner OAuth Demo</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <div class="card">
+    <h1>🔐 Partner OAuth Demo</h1>
+    <div class="status" id="status">
+      <strong>Status:</strong> <span id="status-text"></span>
+    </div>
+    <p>
+      This demo shows how a partner application can authenticate users via Clerk OAuth
+      and call the Ecair Partner API.
+    </p>
+    <div id="actions"></div>
+  </div>
+
+  <script>
+    // Check authentication status
+    fetch('/api/auth-status')
+      .then(res => res.json())
+      .then(data => {
+        const statusDiv = document.getElementById('status');
+        const statusText = document.getElementById('status-text');
+        const actionsDiv = document.getElementById('actions');
+
+        if (data.isAuthenticated) {
+          statusDiv.className = 'status status-success';
+          statusText.textContent = '✅ Authenticated';
+          actionsDiv.innerHTML = `
+            <a href="/test-connection.html" class="btn">Test Authenticated Call to Ecair API</a>
+            <a href="/logout" class="btn btn-secondary">Logout</a>
+          `;
+        } else {
+          statusDiv.className = 'status status-error';
+          statusText.textContent = '❌ Not authenticated';
+          actionsDiv.innerHTML = `
+            <a href="/login" class="btn">Login</a>
+          `;
+        }
+      });
+  </script>
+</body>
+</html>
