@@ -8,8 +8,9 @@
 </head>
 <body>
   <div class="card">
-    <h1>🧪 Test Authenticated Call to Ecair API</h1>
-    <p>Testing authenticated call to <code>/partner-api/v1/test-oauth</code></p>
+    <h1 id="title">🧪 Test Authenticated Call to Ecair API</h1>
+    <p id="description">Testing authenticated call to <code>/partner-api/v1/test-oauth</code></p>
+    <div id="error-container" style="display: none;" class="error-details"></div>
     <pre id="test-result">Loading...</pre>
     <a href="/" class="btn btn-secondary">Back to Home</a>
   </div>
@@ -18,7 +19,7 @@
     fetch('/api/test-connection')
       .then(res => {
         if (!res.ok) {
-          throw new Error('Connection test failed');
+          throw new Error('Connection test failed: ' + res.status);
         }
         return res.json();
       })
@@ -26,7 +27,15 @@
         document.getElementById('test-result').textContent = JSON.stringify(data, null, 2);
       })
       .catch(error => {
-        window.location.href = '/error.html?type=profile_failed&details=' + encodeURIComponent(error.message);
+        document.getElementById('title').innerHTML = '❌ Error Testing Connection';
+        document.getElementById('title').style.color = '#d32f2f';
+        document.getElementById('description').textContent = 'Unable to complete the authenticated API call.';
+
+        const errorContainer = document.getElementById('error-container');
+        errorContainer.textContent = error.message;
+        errorContainer.style.display = 'block';
+
+        document.getElementById('test-result').style.display = 'none';
       });
   </script>
 </body>

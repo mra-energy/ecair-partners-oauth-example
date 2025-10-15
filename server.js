@@ -63,16 +63,16 @@ app.get("/callback", async (req, res) => {
 
   if (error) {
     return res.redirect(
-      `/error.html?type=auth&details=${encodeURIComponent(error)}`
+      `/callback.html?type=auth&details=${encodeURIComponent(error)}`
     );
   }
 
   if (state !== req.session.oauthState) {
-    return res.redirect("/error.html?type=csrf");
+    return res.redirect("/callback.html?type=csrf");
   }
 
   if (!code) {
-    return res.redirect("/error.html?type=missing_code");
+    return res.redirect("/callback.html?type=missing_code");
   }
 
   try {
@@ -102,7 +102,7 @@ app.get("/callback", async (req, res) => {
   } catch (error) {
     console.error("OAuth callback error:", error);
     res.redirect(
-      `/error.html?type=token_failed&details=${encodeURIComponent(
+      `/callback.html?type=token_failed&details=${encodeURIComponent(
         error.message
       )}`
     );
