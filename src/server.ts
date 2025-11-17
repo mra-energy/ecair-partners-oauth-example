@@ -145,7 +145,7 @@ app.get("/api/test-connection", async (req: Request, res: Response) => {
 
   try {
     const apiResponse = await fetch(
-      `${process.env.ECAIR_API_URL}/v1/credit/oauth-test`,
+      `${process.env.ECAIR_API_URL}/v1/core/oauth-test`,
       {
         headers: { Authorization: `Bearer ${req.session.accessToken}` },
       }
