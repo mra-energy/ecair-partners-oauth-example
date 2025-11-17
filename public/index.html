@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Partner OAuth Demo</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="card">
+      <h1>🔐 Partner OAuth Demo</h1>
+      <div class="status" id="status">
+        <strong>Status:</strong> <span id="status-text"></span>
+      </div>
+      <p>
+        This demo shows how a partner application can authenticate users via
+        Clerk OAuth and call the Ecair Partner API.
+      </p>
+
+      <div id="api-test-section" style="display: none">
+        <h2>🧪 Test Authenticated Call to Ecair API</h2>
+        <p>
+          Testing authenticated call to <code>/partner-api/v1/test-oauth</code>
+        </p>
+        <div
+          id="error-container"
+          style="display: none"
+          class="error-details"
+        ></div>
+        <pre id="test-result">Loading...</pre>
+      </div>
+
+      <div id="actions"></div>
+    </div>
+
+    <script>
+      fetch("/api/auth-status")
+        .then((res) => res.json())
+        .then((data) => {
+          const statusDiv = document.getElementById("status");
+          const statusText = document.getElementById("status-text");
+          const actionsDiv = document.getElementById("actions");
+          const apiTestSection = document.getElementById("api-test-section");
+
+          if (data.isAuthenticated) {
+            statusDiv.className = "status status-success";
+            statusText.textContent = "✅ Authenticated";
+            actionsDiv.innerHTML = `
+            <a href="/logout" class="btn btn-secondary">Logout</a>
+          `;
+
+            // Show API test section and make the call
+            apiTestSection.style.display = "block";
+
+            fetch("/api/test-connection")
+              .then((res) => {
+                if (!res.ok) {
+                  throw new Error("Connection test failed: " + res.status);
+                }
+                return res.json();
+              })
+              .then((testData) => {
+                document.getElementById("test-result").textContent =
+                  JSON.stringify(testData, null, 2);
+              })
+              .catch((error) => {
+                const errorContainer =
+                  document.getElementById("error-container");
+                errorContainer.textContent = error.message;
+                errorContainer.style.display = "block";
+                document.getElementById("test-result").textContent =
+                  "Failed to load API response";
+              });
+          } else {
+            statusDiv.className = "status status-error";
+            statusText.textContent = "❌ Not authenticated";
+            actionsDiv.innerHTML = `
+            <a href="/login" class="btn">Login</a>
+          `;
+          }
+        });
+    </script>
+  </body>
+</html>
