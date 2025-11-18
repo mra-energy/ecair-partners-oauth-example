@@ -75,6 +75,7 @@ const response = await fetch(`https://${ECAIR_CLERK_DOMAIN}/oauth/token`, {
 });
 ```
 
-## url details
+## OAuth2 Server Discovery Endpoint
 
+The OAuth2 server discovery endpoint (used for OAuth2 configuration) is:
 https://clerk.ecair.eco/.well-known/oauth-authorization-server
