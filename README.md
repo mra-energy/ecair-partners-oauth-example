@@ -13,6 +13,13 @@ Built with TypeScript, Express, and pnpm.
 
 ## 🚀 Quick Start
 
+### Credentials
+
+Contact integrations@ecair.eco to obtain your API credentials:
+
+- `CLERK_OAUTH_CLIENT_ID` - Your OAuth2 client identifier
+- `CLERK_OAUTH_CLIENT_SECRET` - Your OAuth2 client secret
+
 ### 1. Install Dependencies
 
 ```bash
