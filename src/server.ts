@@ -149,7 +149,7 @@ app.get("/api/test-connection", async (req: Request, res: Response) => {
       {
         headers: {
           Authorization: `Bearer ${req.session.accessToken}`,
-          "Api-Key": process.env.ECAIR_API_KEY!,
+          "X-Api-Key": process.env.ECAIR_API_KEY!,
         },
       }
     );
